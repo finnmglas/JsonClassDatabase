@@ -21,12 +21,13 @@
 ##########         imports           ##########
 
 import os
+import shutil
 import json
 import sys
 
 ##########           globals         ##########
 
-DBLOCATION = "./DB/"
+DBLOCATION = "./DB"
 
 ##########          verb class       ##########
 
@@ -67,12 +68,6 @@ class DBVerb:
 
 ##########            util           ##########
 
-def makeDir(path):
-    if not os.path.exists(DBLOCATION + path):
-        os.makedirs(DBLOCATION + path)
-        return True
-    return False
-
 def listFiles(path):
     return [f for f in os.listdir(DBLOCATION + path)
             if os.path.isfile(os.path.join(DBLOCATION + path, f))]
@@ -85,13 +80,52 @@ def verb_create(args):
     
     elif len(args) == 2: # create <classname>
         classname = args[1]
-        if makeDir(classname):
+        if not os.path.exists(DBLOCATION + "/" + classname):
+            os.makedirs(DBLOCATION + "/" + classname)
             return "Created class '" + classname + "'"
         else:
-            return "Class '" + classname + "' already exists"
+            return "Error: Class '" + classname + "' already exists"
+    
+    elif len(args) == 3: # create <classname> <instance>
+        classname = args[1]
+        instancename = args[2]
+        if not os.path.exists(DBLOCATION + "/" + classname):
+            return "Error: Class '" + classname + "' does not exist"
+        if not os.path.exists(DBLOCATION + "/" + classname + "/" + instancename + ".json"):
+            f = open(DBLOCATION + "/" + classname + "/" + instancename + ".json", "w")
+            f.close()
+            return "Created Instance '" + instancename + "' of class '" + classname + "'"
+        else:
+            return "Error: Instance '" + instancename + "' of class '" + classname + "' already exists"
     
     elif len(args) > 2:
         return "Error: too many arguments for 'create'"
+
+def verb_remove(args):
+    if len(args) < 2:
+        return "Error: too few arguments for 'remove'"
+    
+    elif len(args) == 2: # remove <classname>
+        classname = args[1]
+        if os.path.exists(DBLOCATION + "/" + classname):
+            shutil.rmtree(DBLOCATION + "/" + classname)
+            return "Removed class '" + classname + "'"
+        else:
+            return "Error: Class '" + classname + "' does not exist"
+
+    elif len(args) == 3: # remove <classname> <instance>
+        classname = args[1]
+        instancename = args[2]
+        if not os.path.exists(DBLOCATION + "/" + classname):
+            return "Error: Class '" + classname + "' does not exist"
+        if os.path.exists(DBLOCATION + "/" + classname + "/" + instancename + ".json"):
+            os.remove(DBLOCATION + "/" + classname + "/" + instancename + ".json")
+            return "Removed Instance '" + instancename + "' of class '" + classname + "'"
+        else:
+            return "Error: Instance '" + instancename + "' of class '" + classname + "' does not exist"
+    
+    elif len(args) > 2:
+        return "Error: too many arguments for 'remove'"
     
 
 def verb_version(args):
@@ -127,6 +161,7 @@ def verb_help(args):
 ##########         interpreter       ##########
 
 dbVerbs = [DBVerb("create", verb_create),
+           DBVerb("remove", verb_remove),
            DBVerb("help", verb_help),
            DBVerb("version", verb_version),
            DBVerb("quit", verb_quit)]
