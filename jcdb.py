@@ -61,7 +61,7 @@ class DBVerb:
         args = self.splitToTokens(command)
         if args[0] != self.name:
             return "ERROR: command given to wrong verb"
-        return self.action(args)
+        return self.action(*args[1:])
 
     def __repr__(self):
         return self.name
@@ -74,93 +74,177 @@ def listFiles(path):
 
 ##########            verbs          ##########
 
-def verb_create(args):
-    if len(args) < 2:
+"""
+    path <db>
+    path <db> <class>
+    path <db> <class> <instance>
+"""
+def verb_path(*args):
+    if len(args) <= 3:
+        p = DBLOCATION + "/" + "/".join(args)
+        if len(args) == 3:
+            p += ".json"
+        return p
+    else:
+        return "Error: too many arguments for 'path'"
+
+"""
+    exists <db>
+    exists <db> <class>
+    exists <db> <class> <instance>
+"""
+def verb_exists(*args):
+    if len(args) == 0:
+        return "Error: too few arguments for 'exists'"
+    elif len(args) in [1, 2, 3]:
+        return os.path.exists(verb_path(*args))
+    elif len(args) > 3:
+        return "Error: too many arguments for 'exists'"
+
+"""
+    create <db>
+    create <db> <class>
+    create <db> <class> <instance>
+"""
+def verb_create(*args):
+    if len(args) == 0:
         return "Error: too few arguments for 'create'"
     
-    elif len(args) == 2: # create <classname>
-        classname = args[1]
-        if not os.path.exists(DBLOCATION + "/" + classname):
-            os.makedirs(DBLOCATION + "/" + classname)
-            return "Created class '" + classname + "'"
+    elif len(args) == 1: # create <dbname>
+        if not verb_exists(*args):
+            os.makedirs(verb_path(*args))
+            return "Created Database '" + args[0] + "'"
         else:
-            return "Error: Class '" + classname + "' already exists"
+            return "Error: Database '" + args[0] + "' already exists"
     
-    elif len(args) == 3: # create <classname> <instance>
-        classname = args[1]
-        instancename = args[2]
-        if not os.path.exists(DBLOCATION + "/" + classname):
-            return "Error: Class '" + classname + "' does not exist"
-        if not os.path.exists(DBLOCATION + "/" + classname + "/" + instancename + ".json"):
-            f = open(DBLOCATION + "/" + classname + "/" + instancename + ".json", "w")
+    elif len(args) == 2: # create <dbname> <classname>
+        if not verb_exists(args[0]):
+            return "Error: Database '" + args[0] + "' does not exist"
+        if not verb_exists(*args):
+            os.makedirs(verb_path(*args))
+            return "Created Class '" + args[1] + "' in Database '" + args[0] + "'"
+        else:
+            return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' already exists"
+
+    elif len(args) == 3: # create <dbname> <classname> <instance>
+        if not verb_exists(args[0]):
+            return "Error: Database '" + args[0] + "' does not exist"
+        if not verb_exists(*args[:1]):
+            return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' already exists"
+        if not verb_exists(*args):
+            f = open(verb_path(*args), "w")
             f.close()
-            return "Created Instance '" + instancename + "' of class '" + classname + "'"
+            return "Created Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "'"
         else:
-            return "Error: Instance '" + instancename + "' of class '" + classname + "' already exists"
+            return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' already exists"
     
-    elif len(args) > 2:
+    else:
         return "Error: too many arguments for 'create'"
 
-def verb_remove(args):
-    if len(args) < 2:
+"""
+    remove <db>
+    remove <db> <class>
+    remove <db> <class> <instance>
+"""
+def verb_remove(*args):
+    if len(args) == 0:
         return "Error: too few arguments for 'remove'"
     
-    elif len(args) == 2: # remove <classname>
-        classname = args[1]
-        if os.path.exists(DBLOCATION + "/" + classname):
-            shutil.rmtree(DBLOCATION + "/" + classname)
-            return "Removed class '" + classname + "'"
+    elif len(args) == 1: # remove <dbname>
+        if verb_exists(*args):
+            shutil.rmtree(verb_path(*args))
+            return "Removed Database '" + args[0] + "'"
         else:
-            return "Error: Class '" + classname + "' does not exist"
-
-    elif len(args) == 3: # remove <classname> <instance>
-        classname = args[1]
-        instancename = args[2]
-        if not os.path.exists(DBLOCATION + "/" + classname):
-            return "Error: Class '" + classname + "' does not exist"
-        if os.path.exists(DBLOCATION + "/" + classname + "/" + instancename + ".json"):
-            os.remove(DBLOCATION + "/" + classname + "/" + instancename + ".json")
-            return "Removed Instance '" + instancename + "' of class '" + classname + "'"
-        else:
-            return "Error: Instance '" + instancename + "' of class '" + classname + "' does not exist"
+            return "Error: Database '" + args[0] + "' does not exist"
     
-    elif len(args) > 2:
+    elif len(args) == 2: # remove <dbname> <classname>
+        if not verb_exists(args[0]):
+            return "Error: Database '" + args[0] + "' does not exist"
+        if verb_exists(*args):
+            shutil.rmtree(verb_path(*args))
+            return "Removed Class '" + args[1] + "' in Database '" + args[0] + "'"
+        else:
+            return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+
+    elif len(args) == 3: # remove <dbname> <classname> <instance>
+        if not verb_exists(args[0]):
+            return "Error: Database '" + args[0] + "' does not exist"
+        if not verb_exists(*args[:1]):
+            return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+        if verb_exists(*args):
+            os.remove(verb_path(*args))
+            return "Removed Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "'"
+        else:
+            return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+    
+    else:
         return "Error: too many arguments for 'remove'"
-    
 
-def verb_version(args):
+"""
+    version
+"""
+def verb_version(*args):
     if len(args) < 1:
         return "Error: too few arguments for 'version'"
     
     elif len(args) == 1: # version
-        return "JSON Class DB v0"
+        return "JSON Class DB v0b3"
     
     elif len(args) > 1:
         return "Error: too many arguments for 'version'"
 
-def verb_quit(args):
-    if len(args) < 1:
-        return "Error: too few arguments for 'quit'"
-    
-    elif len(args) == 1: # quit
-        sys.exit()
-    
-    elif len(args) > 1:
-        return "Error: too many arguments for 'quit'"
+"""
+    help
+"""
+def verb_help(*args):
+    if len(args) == 0:
+        return """
+'path': show the path to an object within the database
+    path <db>
+    path <db> <class>
+    path <db> <class> <instance>
 
-def verb_help(args):
-    if len(args) < 1:
-        return "Error: too few arguments for 'help'"
+'exists': check if some db, class or instance exists
+    exists <db>
+    exists <db> <class>
+    exists <db> <class> <instance>
+
+'create': create dbs, classes and instances
+    create <db>
+    create <db> <class>
+    create <db> <class> <instance>
+
+'remove': remove dbs, classes and instances
+    remove <db>
+    remove <db> <class>
+    remove <db> <class> <instance>
+
+'version': print the Json Class DB - Version
+    version
+
+'help': print this text
+    help
+
+'quit': leave the dbshell
+    quit"""
     
-    elif len(args) == 1: # help
-        return "\t" + "\n\n\t".join([str(v) for v in dbVerbs])
-    
-    elif len(args) > 1:
+    else:
         return "Error: too many arguments for 'help'"
+
+"""
+    quit
+"""
+def verb_quit(*args):
+    if len(args) == 0:
+        sys.exit()
+    else:
+        return "Error: too many arguments for 'quit'"
 
 ##########         interpreter       ##########
 
-dbVerbs = [DBVerb("create", verb_create),
+dbVerbs = [DBVerb("path", verb_path),
+           DBVerb("exists", verb_exists),
+           DBVerb("create", verb_create),
            DBVerb("remove", verb_remove),
            DBVerb("help", verb_help),
            DBVerb("version", verb_version),
@@ -170,19 +254,15 @@ def interpret(command):
     result = ""
     for c in dbVerbs:
         if c.name == command.split(" ")[0]:
-            return c.run(command) + "\n"
+            return str(c.run(command)) + "\n"
     return "command not found\n"
     
 def interpret_loop():
-    shouldRun = True
     try:
-        while shouldRun:
-            i = input("dbshell#\t")
-            print(interpret(i))
-            if i == "quit":
-                shouldRun = False
+        while True:
+            print(interpret(input("dbshell#\t")))
     except KeyboardInterrupt:
-        print(interpret("quit"))
+        verb_quit()
 
 ##########            main           ##########
 
