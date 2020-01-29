@@ -111,6 +111,28 @@ def verb_list(*args):
     else:
         return "Error: too many arguments for 'exists'"
 
+
+"""
+    show <db> <class> <instance>
+"""
+def verb_show(*args):
+    if len(args) < 3:
+        return "Error: too few arguments for 'show'"
+    elif len(args) == 3:
+        if not verb_exists(args[0]):
+            return "Error: Database '" + args[0] + "' does not exist"
+        if not verb_exists(*args[:1]):
+            return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+        if verb_exists(*args):
+            f = open(verb_path(*args))
+            content = f.read()
+            f.close()
+            return content
+        else:
+            return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+    else:
+        return "Error: too many arguments for 'show'"
+
 """
     create <db>
     create <db> <class>
@@ -143,6 +165,7 @@ def verb_create(*args):
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' already exists"
         if not verb_exists(*args):
             f = open(verb_path(*args), "w")
+            f.write("{}")
             f.close()
             return "Created Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "'"
         else:
@@ -198,7 +221,7 @@ def verb_version(*args):
         return "Error: too few arguments for 'version'"
     
     elif len(args) == 1: # version
-        return "JSON Class DB v0b4"
+        return "JSON Class DB v0b5"
     
     elif len(args) > 1:
         return "Error: too many arguments for 'version'"
@@ -223,6 +246,9 @@ def verb_help(*args):
     list
     list <db>
     list <db> <class>
+
+'show': print a instance of a class in a specific db
+    show <db> <class> <instance>
 
 'create': create dbs, classes and instances
     create <db>
@@ -260,6 +286,7 @@ def verb_quit(*args):
 dbVerbs = [DBVerb("path", verb_path),
            DBVerb("exists", verb_exists),
            DBVerb("list", verb_list),
+           DBVerb("show", verb_show),
            DBVerb("create", verb_create),
            DBVerb("remove", verb_remove),
            DBVerb("help", verb_help),

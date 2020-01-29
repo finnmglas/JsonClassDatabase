@@ -26,6 +26,9 @@ The following commands can be used:
     list <db>
     list <db> <class>
 
+'show': print a instance of a class in a specific db
+    show <db> <class> <instance>
+
 'create': create dbs, classes and instances
     create <db>
     create <db> <class>
