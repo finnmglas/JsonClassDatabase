@@ -21,6 +21,11 @@ The following commands can be used:
     exists <db> <class>
     exists <db> <class> <instance>
 
+'list': show instances in class, classes in db, dbs on sys
+    list
+    list <db>
+    list <db> <class>
+
 'create': create dbs, classes and instances
     create <db>
     create <db> <class>

@@ -27,7 +27,7 @@ import sys
 
 ##########           globals         ##########
 
-DBLOCATION = "./DB"
+DBLOCATION = "/var/jcdb"
 
 ##########          verb class       ##########
 
@@ -66,12 +66,6 @@ class DBVerb:
     def __repr__(self):
         return self.name
 
-##########            util           ##########
-
-def listFiles(path):
-    return [f for f in os.listdir(DBLOCATION + path)
-            if os.path.isfile(os.path.join(DBLOCATION + path, f))]
-
 ##########            verbs          ##########
 
 """
@@ -89,16 +83,32 @@ def verb_path(*args):
         return "Error: too many arguments for 'path'"
 
 """
+    exists
     exists <db>
     exists <db> <class>
     exists <db> <class> <instance>
 """
 def verb_exists(*args):
-    if len(args) == 0:
-        return "Error: too few arguments for 'exists'"
-    elif len(args) in [1, 2, 3]:
+    if len(args) <= 3:
         return os.path.exists(verb_path(*args))
-    elif len(args) > 3:
+    else:
+        return "Error: too many arguments for 'exists'"
+
+"""
+    list
+    list <db>
+    list <db> <class>
+"""
+def verb_list(*args):
+    if len(args) <= 2:
+        if verb_exists(*args):
+            r = os.listdir(verb_path(*args))
+            if len(args) == 2:
+                r = [i.replace(".json", "") for i in r]
+            return r
+        else:
+            return "Error: directory to list does not exist"
+    else:
         return "Error: too many arguments for 'exists'"
 
 """
@@ -188,7 +198,7 @@ def verb_version(*args):
         return "Error: too few arguments for 'version'"
     
     elif len(args) == 1: # version
-        return "JSON Class DB v0b3"
+        return "JSON Class DB v0b4"
     
     elif len(args) > 1:
         return "Error: too many arguments for 'version'"
@@ -208,6 +218,11 @@ def verb_help(*args):
     exists <db>
     exists <db> <class>
     exists <db> <class> <instance>
+
+'list': show instances in class, classes in db, dbs on sys
+    list
+    list <db>
+    list <db> <class>
 
 'create': create dbs, classes and instances
     create <db>
@@ -244,6 +259,7 @@ def verb_quit(*args):
 
 dbVerbs = [DBVerb("path", verb_path),
            DBVerb("exists", verb_exists),
+           DBVerb("list", verb_list),
            DBVerb("create", verb_create),
            DBVerb("remove", verb_remove),
            DBVerb("help", verb_help),
@@ -255,7 +271,7 @@ def interpret(command):
     for c in dbVerbs:
         if c.name == command.split(" ")[0]:
             return str(c.run(command)) + "\n"
-    return "command not found\n"
+    return "Error: command '" + command + "' does not exist\n"
     
 def interpret_loop():
     try:
