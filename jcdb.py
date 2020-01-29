@@ -42,7 +42,7 @@ class DBVerb:
         recursionLevel = 0
         inString = False
         tokencount = 0
-                
+        
         for char in command:
             if char == "\"":
                 inString = not inString
@@ -55,13 +55,18 @@ class DBVerb:
                 tokens.append("")
             else:
                 tokens[tokencount] += char
+             # "DB" is the same input as DB
+            if (len(tokens[tokencount]) > 2 and
+                tokens[tokencount][0] == "\"" and
+                tokens[tokencount][-1] == "\""):
+                tokens[tokencount] = eval(tokens[tokencount])
         return tokens                
 
     def run(self, command):
-        args = self.splitToTokens(command)
-        if args[0] != self.name:
+        name, *args = self.splitToTokens(command)
+        if name != self.name:
             return "ERROR: command given to wrong verb"
-        return self.action(*args[1:])
+        return self.action(*args)
 
     def __repr__(self):
         return self.name
@@ -111,13 +116,13 @@ def verb_list(*args):
     else:
         return "Error: too many arguments for 'exists'"
 
-
 """
-    show <db> <class> <instance>
+    get <db> <class> <instance>
+    get <db> <class> <instance> <attribute>
 """
-def verb_show(*args):
+def verb_get(*args):
     if len(args) < 3:
-        return "Error: too few arguments for 'show'"
+        return "Error: too few arguments for 'get'"
     elif len(args) == 3:
         if not verb_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
@@ -130,8 +135,21 @@ def verb_show(*args):
             return content
         else:
             return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+    elif len(args) == 4:
+        content = verb_show(*args[:-1])
+        if content.split(" ")[0] != "Error:":
+            try:
+                jobject = json.loads(content)
+            except json.decoder.JSONDecodeError:
+                return "Error: Json decoding failed"
+            if args[-1] in list(jobject.keys()):
+                return jobject[args[-1]]
+            else:
+                return "Error: Attribute does not exist"
+        else:
+            return "Error: 'show': " + content
     else:
-        return "Error: too many arguments for 'show'"
+        return "Error: too many arguments for 'get'"
 
 """
     create <db>
@@ -247,8 +265,9 @@ def verb_help(*args):
     list <db>
     list <db> <class>
 
-'show': print a instance of a class in a specific db
-    show <db> <class> <instance>
+'get': get json instances and their attributes
+    get <db> <class> <instance>
+    get <db> <class> <instance> <attribute>
 
 'create': create dbs, classes and instances
     create <db>
@@ -286,7 +305,7 @@ def verb_quit(*args):
 dbVerbs = [DBVerb("path", verb_path),
            DBVerb("exists", verb_exists),
            DBVerb("list", verb_list),
-           DBVerb("show", verb_show),
+           DBVerb("get", verb_get),
            DBVerb("create", verb_create),
            DBVerb("remove", verb_remove),
            DBVerb("help", verb_help),

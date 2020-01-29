@@ -26,8 +26,9 @@ The following commands can be used:
     list <db>
     list <db> <class>
 
-'show': print a instance of a class in a specific db
-    show <db> <class> <instance>
+'get': get json instances and their attributes
+    get <db> <class> <instance>
+    get <db> <class> <instance> <attribute>
 
 'create': create dbs, classes and instances
     create <db>
