@@ -136,7 +136,7 @@ def verb_get(*args):
         else:
             return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
     elif len(args) == 4:
-        content = verb_show(*args[:-1])
+        content = verb_get(*args[:-1])
         if content.split(" ")[0] != "Error:":
             try:
                 jobject = json.loads(content)
@@ -147,9 +147,53 @@ def verb_get(*args):
             else:
                 return "Error: Attribute does not exist"
         else:
-            return "Error: 'show': " + content
+            return "Error: 'get': " + content
     else:
         return "Error: too many arguments for 'get'"
+
+"""
+    set <db> <class> <instance> <json>
+    set <db> <class> <instance> <attribute> <value>
+"""
+def verb_set(*args):
+    if len(args) < 4:
+        return "Error: too few arguments for 'set'"
+    elif len(args) == 4:
+        if not verb_exists(args[0]):
+            return "Error: Database '" + args[0] + "' does not exist"
+        if not verb_exists(*args[:-2]):
+            return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
+        else: # if json file does not exist, just create
+            try:
+                jobject = json.loads(args[-1])
+            except json.decoder.JSONDecodeError:
+                return "Error: Json decoding failed"
+            
+            f = open(verb_path(*args[:-1]), "w")
+            f.write(json.dumps(jobject, indent=4, sort_keys=True))
+            f.close()
+            return "Successfully written json to '" + args[-2] + "'"
+
+    elif len(args) == 5:
+        content = verb_get(*args[:-2])
+        if content.split(" ")[0] != "Error:":
+            try:
+                jobject = json.loads(content)
+                index = args[-2]
+                value = json.loads(args[-1])
+            except json.decoder.JSONDecodeError:
+                return "Error: Json decoding failed"
+            jobject[index] = value
+
+            f = open(verb_path(*args[:-2]), "w")
+            f.write(json.dumps(jobject, indent=4, sort_keys=True))
+            f.close()
+            
+            return "Successfully written attribute to '" + args[-3] + "'"
+        else:
+            return "Error: 'get': " + content
+    else:
+        return "Error: too many arguments for 'set'"
 
 """
     create <db>
@@ -269,6 +313,10 @@ def verb_help(*args):
     get <db> <class> <instance>
     get <db> <class> <instance> <attribute>
 
+'set': set json instances and their attributes
+    set <db> <class> <instance> <json>
+    set <db> <class> <instance> <attribute> <value>
+
 'create': create dbs, classes and instances
     create <db>
     create <db> <class>
@@ -306,6 +354,7 @@ dbVerbs = [DBVerb("path", verb_path),
            DBVerb("exists", verb_exists),
            DBVerb("list", verb_list),
            DBVerb("get", verb_get),
+           DBVerb("set", verb_set),
            DBVerb("create", verb_create),
            DBVerb("remove", verb_remove),
            DBVerb("help", verb_help),

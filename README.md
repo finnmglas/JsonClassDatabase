@@ -30,6 +30,10 @@ The following commands can be used:
     get <db> <class> <instance>
     get <db> <class> <instance> <attribute>
 
+'set': set json instances and their attributes
+    set <db> <class> <instance> <json>
+    set <db> <class> <instance> <attribute> <value>
+
 'create': create dbs, classes and instances
     create <db>
     create <db> <class>
