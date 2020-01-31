@@ -29,9 +29,9 @@ import sys
 
 DBLOCATION = "/var/jcdb"
 
-##########          verb class       ##########
+##########          DBCommand        ##########
 
-class DBVerb:
+class DBCommand:
     
     def __init__(self, name, callback):
         self.name = name
@@ -65,20 +65,20 @@ class DBVerb:
     def run(self, command):
         name, *args = self.splitToTokens(command)
         if name != self.name:
-            return "ERROR: command given to wrong verb"
+            return "ERROR: command given to wrong operation"
         return self.action(*args)
 
     def __repr__(self):
         return self.name
 
-##########            verbs          ##########
+##########         operations        ##########
 
 """
     path <db>
     path <db> <class>
     path <db> <class> <instance>
 """
-def verb_path(*args):
+def op_path(*args):
     if len(args) <= 3:
         p = DBLOCATION + "/" + "/".join(args)
         if len(args) == 3:
@@ -93,9 +93,9 @@ def verb_path(*args):
     exists <db> <class>
     exists <db> <class> <instance>
 """
-def verb_exists(*args):
+def op_exists(*args):
     if len(args) <= 3:
-        return os.path.exists(verb_path(*args))
+        return os.path.exists(op_path(*args))
     else:
         return "Error: too many arguments for 'exists'"
 
@@ -104,10 +104,10 @@ def verb_exists(*args):
     list <db>
     list <db> <class>
 """
-def verb_list(*args):
+def op_list(*args):
     if len(args) <= 2:
-        if verb_exists(*args):
-            r = os.listdir(verb_path(*args))
+        if op_exists(*args):
+            r = os.listdir(op_path(*args))
             if len(args) == 2:
                 r = [i.replace(".json", "") for i in r]
             return r
@@ -120,23 +120,23 @@ def verb_list(*args):
     get <db> <class> <instance>
     get <db> <class> <instance> <attribute>
 """
-def verb_get(*args):
+def op_get(*args):
     if len(args) < 3:
         return "Error: too few arguments for 'get'"
     elif len(args) == 3:
-        if not verb_exists(args[0]):
+        if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
-        if not verb_exists(*args[:1]):
+        if not op_exists(*args[:1]):
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
-        if verb_exists(*args):
-            f = open(verb_path(*args))
+        if op_exists(*args):
+            f = open(op_path(*args))
             content = f.read()
             f.close()
             return content
         else:
             return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
     elif len(args) == 4:
-        content = verb_get(*args[:-1])
+        content = op_get(*args[:-1])
         if content.split(" ")[0] != "Error:":
             try:
                 jobject = json.loads(content)
@@ -155,13 +155,13 @@ def verb_get(*args):
     set <db> <class> <instance> <json>
     set <db> <class> <instance> <attribute> <value>
 """
-def verb_set(*args):
+def op_set(*args):
     if len(args) < 4:
         return "Error: too few arguments for 'set'"
     elif len(args) == 4:
-        if not verb_exists(args[0]):
+        if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
-        if not verb_exists(*args[:-2]):
+        if not op_exists(*args[:-2]):
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
         else: # if json file does not exist, just create
             try:
@@ -169,13 +169,13 @@ def verb_set(*args):
             except json.decoder.JSONDecodeError:
                 return "Error: Json decoding failed"
             
-            f = open(verb_path(*args[:-1]), "w")
+            f = open(op_path(*args[:-1]), "w")
             f.write(json.dumps(jobject, indent=4, sort_keys=True))
             f.close()
             return "Successfully written json to '" + args[-2] + "'"
 
     elif len(args) == 5:
-        content = verb_get(*args[:-2])
+        content = op_get(*args[:-2])
         if content.split(" ")[0] != "Error:":
             try:
                 jobject = json.loads(content)
@@ -185,7 +185,7 @@ def verb_set(*args):
                 return "Error: Json decoding failed"
             jobject[index] = value
 
-            f = open(verb_path(*args[:-2]), "w")
+            f = open(op_path(*args[:-2]), "w")
             f.write(json.dumps(jobject, indent=4, sort_keys=True))
             f.close()
             
@@ -200,33 +200,33 @@ def verb_set(*args):
     create <db> <class>
     create <db> <class> <instance>
 """
-def verb_create(*args):
+def op_create(*args):
     if len(args) == 0:
         return "Error: too few arguments for 'create'"
     
     elif len(args) == 1: # create <dbname>
-        if not verb_exists(*args):
-            os.makedirs(verb_path(*args))
+        if not op_exists(*args):
+            os.makedirs(op_path(*args))
             return "Created Database '" + args[0] + "'"
         else:
             return "Error: Database '" + args[0] + "' already exists"
     
     elif len(args) == 2: # create <dbname> <classname>
-        if not verb_exists(args[0]):
+        if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
-        if not verb_exists(*args):
-            os.makedirs(verb_path(*args))
+        if not op_exists(*args):
+            os.makedirs(op_path(*args))
             return "Created Class '" + args[1] + "' in Database '" + args[0] + "'"
         else:
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' already exists"
 
     elif len(args) == 3: # create <dbname> <classname> <instance>
-        if not verb_exists(args[0]):
+        if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
-        if not verb_exists(*args[:1]):
+        if not op_exists(*args[:1]):
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' already exists"
-        if not verb_exists(*args):
-            f = open(verb_path(*args), "w")
+        if not op_exists(*args):
+            f = open(op_path(*args), "w")
             f.write("{}")
             f.close()
             return "Created Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "'"
@@ -241,33 +241,33 @@ def verb_create(*args):
     remove <db> <class>
     remove <db> <class> <instance>
 """
-def verb_remove(*args):
+def op_remove(*args):
     if len(args) == 0:
         return "Error: too few arguments for 'remove'"
     
     elif len(args) == 1: # remove <dbname>
-        if verb_exists(*args):
-            shutil.rmtree(verb_path(*args))
+        if op_exists(*args):
+            shutil.rmtree(op_path(*args))
             return "Removed Database '" + args[0] + "'"
         else:
             return "Error: Database '" + args[0] + "' does not exist"
     
     elif len(args) == 2: # remove <dbname> <classname>
-        if not verb_exists(args[0]):
+        if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
-        if verb_exists(*args):
-            shutil.rmtree(verb_path(*args))
+        if op_exists(*args):
+            shutil.rmtree(op_path(*args))
             return "Removed Class '" + args[1] + "' in Database '" + args[0] + "'"
         else:
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
 
     elif len(args) == 3: # remove <dbname> <classname> <instance>
-        if not verb_exists(args[0]):
+        if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
-        if not verb_exists(*args[:1]):
+        if not op_exists(*args[:1]):
             return "Error: Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
-        if verb_exists(*args):
-            os.remove(verb_path(*args))
+        if op_exists(*args):
+            os.remove(op_path(*args))
             return "Removed Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "'"
         else:
             return "Error: Instance '" + args[2] + "' of Class '" + args[1] + "' in Database '" + args[0] + "' does not exist"
@@ -278,12 +278,9 @@ def verb_remove(*args):
 """
     version
 """
-def verb_version(*args):
-    if len(args) < 1:
-        return "Error: too few arguments for 'version'"
-    
-    elif len(args) == 1: # version
-        return "JSON Class DB v0b5"
+def op_version(*args):
+    if len(args) == 0: # version
+        return "JSON Class DB v0b7"
     
     elif len(args) > 1:
         return "Error: too many arguments for 'version'"
@@ -291,9 +288,14 @@ def verb_version(*args):
 """
     help
 """
-def verb_help(*args):
+def op_help(*args):
     if len(args) == 0:
         return """
+----- Usage -----
+
+'loop': start the dbshell (loop)
+    loop
+
 'path': show the path to an object within the database
     path <db>
     path <db> <class>
@@ -342,7 +344,7 @@ def verb_help(*args):
 """
     quit
 """
-def verb_quit(*args):
+def op_quit(*args):
     if len(args) == 0:
         sys.exit()
     else:
@@ -350,20 +352,20 @@ def verb_quit(*args):
 
 ##########         interpreter       ##########
 
-dbVerbs = [DBVerb("path", verb_path),
-           DBVerb("exists", verb_exists),
-           DBVerb("list", verb_list),
-           DBVerb("get", verb_get),
-           DBVerb("set", verb_set),
-           DBVerb("create", verb_create),
-           DBVerb("remove", verb_remove),
-           DBVerb("help", verb_help),
-           DBVerb("version", verb_version),
-           DBVerb("quit", verb_quit)]
+dbOps = [DBCommand("path", op_path),
+           DBCommand("exists", op_exists),
+           DBCommand("list", op_list),
+           DBCommand("get", op_get),
+           DBCommand("set", op_set),
+           DBCommand("create", op_create),
+           DBCommand("remove", op_remove),
+           DBCommand("help", op_help),
+           DBCommand("version", op_version),
+           DBCommand("quit", op_quit)]
 
 def interpret(command):
     result = ""
-    for c in dbVerbs:
+    for c in dbOps:
         if c.name == command.split(" ")[0]:
             return str(c.run(command)) + "\n"
     return "Error: command '" + command + "' does not exist\n"
@@ -373,9 +375,16 @@ def interpret_loop():
         while True:
             print(interpret(input("dbshell#\t")))
     except KeyboardInterrupt:
-        verb_quit()
+        print()
+        op_quit()
 
 ##########            main           ##########
 
 if __name__ == "__main__":
-    interpret_loop()
+    if len(sys.argv) == 1:
+        print("Use 'jcdb loop' to start the dbshell")
+        print("Or type 'jcdb' followed by your command")
+    elif sys.argv[1] == "loop":
+        interpret_loop()
+    else:
+        print(interpret(" ".join(sys.argv[1:])))

@@ -4,13 +4,21 @@ A simple, yet effective key-value database. Data is sorted into different classe
 The database serves the purpose of facilitating the storage of shared data, while giving the user an easy way to manipulate,
 search or add the stored data.
 
+## Installation
+
+To install, clone this repository and run './install.sh' from your console
+
 ## Usage
 
-By running `python3 jcdb.py` in your terminal, you start the **dbshell**.
+By running `jcdb` in your terminal, you can access the database,
+`jcdb loop` will start the **dbshell**.
 
 The following commands can be used:
 
 ```
+'loop': start the dbshell (loop)
+    loop
+
 'path': show the path to an object within the database
     path <db>
     path <db> <class>
