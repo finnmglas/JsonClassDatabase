@@ -28,6 +28,7 @@ import sys
 ##########           globals         ##########
 
 DBLOCATION = "/var/jcdb"
+VERSION = "v1.0"
 
 ##########          DBCommand        ##########
 
@@ -280,7 +281,7 @@ def op_remove(*args):
 """
 def op_version(*args):
     if len(args) == 0: # version
-        return "JSON Class DB v0b7"
+        return "JSON Class DB " + VERSION
     
     elif len(args) > 1:
         return "Error: too many arguments for 'version'"
