@@ -55,6 +55,7 @@ class DBCommand:
                 tokencount += 1
                 tokens.append("")
             else:
+                #print(char)
                 tokens[tokencount] += char
              # "DB" is the same input as DB
             if (len(tokens[tokencount]) > 2 and
@@ -153,13 +154,13 @@ def op_get(*args):
         return "Error: too many arguments for 'get'"
 
 """
-    set <db> <class> <instance> <json>
+    set <db> <class> <instance> <jsonstr>
     set <db> <class> <instance> <attribute> <value>
 """
 def op_set(*args):
     if len(args) < 4:
         return "Error: too few arguments for 'set'"
-    elif len(args) == 4:
+    elif len(args) == 4: # inst = json
         if not op_exists(args[0]):
             return "Error: Database '" + args[0] + "' does not exist"
         if not op_exists(*args[:-2]):
@@ -175,7 +176,7 @@ def op_set(*args):
             f.close()
             return "Successfully written json to '" + args[-2] + "'"
 
-    elif len(args) == 5:
+    elif len(args) == 5: # inst[attr] = json
         content = op_get(*args[:-2])
         if content.split(" ")[0] != "Error:":
             try:
@@ -184,7 +185,12 @@ def op_set(*args):
                 value = json.loads(args[-1])
             except json.decoder.JSONDecodeError:
                 return "Error: Json decoding failed"
-            jobject[index] = value
+            
+            if type(jobject) == type(dict()):
+                jobject[index] = value
+            else:
+                jobject = {}
+                jobject[index] = value
 
             f = open(op_path(*args[:-2]), "w")
             f.write(json.dumps(jobject, indent=4, sort_keys=True))
@@ -294,9 +300,6 @@ def op_help(*args):
         return """
 ----- Usage -----
 
-'loop': start the dbshell (loop)
-    loop
-
 'path': show the path to an object within the database
     path <db>
     path <db> <class>
@@ -317,7 +320,7 @@ def op_help(*args):
     get <db> <class> <instance> <attribute>
 
 'set': set json instances and their attributes
-    set <db> <class> <instance> <json>
+    set <db> <class> <instance> <jsonstr>
     set <db> <class> <instance> <attribute> <value>
 
 'create': create dbs, classes and instances
@@ -370,22 +373,11 @@ def interpret(command):
         if c.name == command.split(" ")[0]:
             return str(c.run(command)) + "\n"
     return "Error: command '" + command + "' does not exist\n"
-    
-def interpret_loop():
-    try:
-        while True:
-            print(interpret(input("dbshell#\t")))
-    except KeyboardInterrupt:
-        print()
-        op_quit()
 
 ##########            main           ##########
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print("Use 'jcdb loop' to start the dbshell")
-        print("Or type 'jcdb' followed by your command")
-    elif sys.argv[1] == "loop":
-        interpret_loop()
+        print("Type 'jcdb' followed by your command")
     else:
         print(interpret(" ".join(sys.argv[1:])))
