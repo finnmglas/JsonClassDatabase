@@ -21,6 +21,7 @@ The following commands can be used:
     path <db> <class> <instance>
 
 'exists': check if some db, class or instance exists
+    exists
     exists <db>
     exists <db> <class>
     exists <db> <class> <instance>
@@ -48,14 +49,11 @@ The following commands can be used:
     remove <db> <class>
     remove <db> <class> <instance>
 
-'version': print the Json Class DB - Version
-    version
-
 'help': print this text
     help
 
-'quit': leave the dbshell
-    quit
+'version': print the Json Class DB - Version
+    version
 ```
 
 ## Example usage
