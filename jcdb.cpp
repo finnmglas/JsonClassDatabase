@@ -22,6 +22,13 @@
 #define DB_LOCATION "/var/jcdb"
 #define DB_VERSION "v2.0.0"
 
+#define USAGE "jcdb\
+ [-v] [-h]"
+
+#define HELP "Common JCDB commands:\n\
+\n\
+"
+
 /* The application */
 int main (int argc, char **argv) {
   int aflag = 0;
@@ -34,12 +41,21 @@ int main (int argc, char **argv) {
   {
   opterr = 0; // return '?' rather than throwning errors
 
-  while ((c = getopt (argc, argv, "vc:")) != -1) {
+  while ((c = getopt (argc, argv, "vhc:")) != -1) {
     switch (c) {
-      case 'v': // print the version, exit
+
+      /* -v | Print the JCDB version */
+      case 'v':
         printf("JCDB %s\n", DB_VERSION);
         return 0;
         break;
+
+      /* -h | Print some helpful commands */
+      case 'h':
+        printf("usage: %s\n\n%s\n", USAGE, HELP);
+        return 0;
+        break;
+
       case 'c':
         cvalue = optarg;
         break;
