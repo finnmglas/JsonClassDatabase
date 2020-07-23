@@ -12,11 +12,17 @@
  *   First thought:    2019-01-04
  */
 
+/* Imports */
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
+/* Defines */
+#define DB_LOCATION "/var/jcdb"
+#define DB_VERSION "v2.0.0"
+
+/* The application */
 int main (int argc, char **argv) {
   int aflag = 0;
   int bflag = 0;
@@ -24,17 +30,15 @@ int main (int argc, char **argv) {
   int index;
   int c;
 
-  opterr = 0;
+  /* Parse arguments */
+  {
+  opterr = 0; // return '?' rather than throwning errors
 
-
-  while ((c = getopt (argc, argv, "abc:")) != -1)
-    switch (c)
-      {
-      case 'a':
-        aflag = 1;
-        break;
-      case 'b':
-        bflag = 1;
+  while ((c = getopt (argc, argv, "vc:")) != -1) {
+    switch (c) {
+      case 'v': // print the version, exit
+        printf("JCDB %s\n", DB_VERSION);
+        return 0;
         break;
       case 'c':
         cvalue = optarg;
@@ -50,12 +54,14 @@ int main (int argc, char **argv) {
                    optopt);
         return 1;
       default:
-        abort ();
+        abort();
       }
+    }
+  }
 
+  /* TODO: execute the given command */
 
-  printf ("aflag = %d, bflag = %d, cvalue = %s\n",
-          aflag, bflag, cvalue);
+  printf ("cvalue = %s\n", cvalue);
 
   for (index = optind; index < argc; index++)
     printf ("Non-option argument %s\n", argv[index]);
