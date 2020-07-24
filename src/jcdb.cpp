@@ -33,6 +33,40 @@ using json = nlohmann::json;
 
 #define HELP "Common JCDB commands:\n\
 \n\
+'path': show the path to an object within the database\n\
+    path <db>\n\
+    path <db> <class>\n\
+    path <db> <class> <instance>\n\
+\n\
+'exists': check if some db, class or instance exists\n\
+    exists\n\
+    exists <db>\n\
+    exists <db> <class>\n\
+    exists <db> <class> <instance>\n\
+\n\
+'list': show instances in class, classes in db, dbs on sys\n\
+    list\n\
+    list <db>\n\
+    list <db> <class>\n\
+\n\
+'get': get json instances and their attributes\n\
+    get <db> <class> <instance>\n\
+    get <db> <class> <instance> <attribute>\n\
+\n\
+'set': set json instances and their attributes\n\
+    set <db> <class> <instance> <jsonstr>\n\
+    set <db> <class> <instance> <attribute> <value>\n\
+\n\
+'create': create dbs, classes and instances\n\
+    create <db>\n\
+    create <db> <class>\n\
+    create <db> <class> <instance>\n\
+\n\
+'remove': remove dbs, classes and instances\n\
+    remove <db>\n\
+    remove <db> <class>\n\
+    remove <db> <class> <instance>\n\
+\n\
 'help': print this text\n\
     help\n\
 \n\
