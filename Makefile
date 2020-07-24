@@ -1,5 +1,5 @@
-jcdb: jcdb.cpp
-	g++ -o jcdb jcdb.cpp
+jcdb: src/jcdb.cpp
+	g++ -o src/jcdb src/jcdb.cpp
 
-run: jcdb
-	./jcdb
+run: src/jcdb
+	./src/jcdb
