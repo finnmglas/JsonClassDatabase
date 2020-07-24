@@ -20,6 +20,10 @@
 #include <unistd.h>
 #include <iostream>
 
+#include "../lib/json.hpp"
+
+using json = nlohmann::json;
+
 /* Defines */
 #define DB_LOCATION "/var/jcdb"
 #define DB_VERSION "v2.0.0"
