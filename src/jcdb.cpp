@@ -15,10 +15,15 @@
 /* Imports */
 #include <ctype.h>
 #include <cstring>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
+#include <cstdio>
+#include <stdexcept>
+#include <memory>
+#include <array>
 
 #include "../lib/json.hpp"
 
@@ -44,7 +49,7 @@ using json = nlohmann::json;
     exists <db> <class>\n\
     exists <db> <class> <instance>\n\
 \n\
-'list': show instances in class, classes in db, dbs on sys\n\
+'list': show instances in class, classes in db or dbs on sys\n\
     list\n\
     list <db>\n\
     list <db> <class>\n\
@@ -73,6 +78,20 @@ using json = nlohmann::json;
 'version': print the JCDB version\n\
     version\
 "
+
+/* execute shell commands */
+std::string exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
+}
 
 /* The application */
 int main (int argc, char **argv) {
