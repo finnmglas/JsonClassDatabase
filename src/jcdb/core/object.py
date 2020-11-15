@@ -65,14 +65,16 @@ class Object:
 
     ## --- Serialization --- ##
 
-    def encode(self):
+    def encode(self, indent=None):
 
         """
         Serialize the object to a json string.
         """
 
         return json.dumps(
-            {"_type": type(self).__name__, **self.__dict__}, cls=Object.Encoder
+            {"_type": type(self).__name__, **self.__dict__},
+            cls=Object.Encoder,
+            indent=indent,
         )
 
     @staticmethod
@@ -94,7 +96,32 @@ class Object:
 
         return o
 
-    ## --- Data Model functions --- #
+    ## --- File IO --- ##
+
+    def encodeToFile(self, fileName="output.json", indent=None):
+
+        """
+        Write output to a JSON file.
+        """
+
+        f = open(fileName, "w")
+        f.write(self.encode(indent=indent))
+        f.close()
+
+    @staticmethod
+    def decodeFile(fileName):
+
+        """
+        Decode objects from a file.
+        """
+
+        f = open(fileName, "r")
+        data = f.read()
+        f.close()
+
+        return Object.decode(data)
+
+    ## --- Data Model functions --- ##
 
     def __eq__(self, other):
 
