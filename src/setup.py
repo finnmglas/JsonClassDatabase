@@ -6,7 +6,7 @@ long_description = """
 JSON Class Database
 ===================
 
-The JSON Class Database.
+En- and decode data-types and classes to JSON-type files or databases.
 
 =====
 
@@ -26,7 +26,7 @@ The JSON Class Database.
 
 setuptools.setup(
     name="jcdb",
-    version="0.0.0",
+    version="0.1.0",
     description="The JSON-Class Database.",
     long_description=long_description,
     classifiers=[
