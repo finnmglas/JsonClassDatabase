@@ -4,7 +4,7 @@
 
 # JSON Class Database
 
-The JSON Class Database.
+En- and decode data-types and classes to JSON-type files or databases.
 
 <a id="concept"></a>
 ## Concept
