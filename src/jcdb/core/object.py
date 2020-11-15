@@ -46,11 +46,22 @@ class Object:
             if obj["_type"] in Object.types:
                 return Object.types[obj["_type"]].decode(obj)
             else:
-                return Object.decode(obj)
+                return obj
 
     ## --- Static Variables --- ##
 
     types = {}
+
+    ## --- Static Functions --- ##
+
+    @staticmethod
+    def register(t):
+        if type(t) != type(Object):
+            raise TypeError(
+                "Cannot register '" + type(t).__name__ + "' as a serializable type."
+            )
+
+        Object.types[t.__name__] = t
 
     ## --- Serialization --- ##
 
@@ -74,4 +85,23 @@ class Object:
         if isinstance(j, str):
             j = json.loads(j, cls=Object.Decoder)
 
-        return j
+        o = j
+        if isinstance(j, dict):
+            o = Object.types[j.pop("_type", None)]()
+
+            for k in j:
+                setattr(o, k, j[k])
+
+        return o
+
+    ## --- Data Model functions --- #
+
+    def __eq__(self, other):
+
+        if type(self) != type(other):
+            return False
+
+        return self.__dict__ == other.__dict__
+
+
+Object.register(Object)
