@@ -1,0 +1,28 @@
+###
+#
+#   LedgerMan's .gitignore
+#
+###
+
+# --- LANGUAGE - compiled python modules
+
+*.pyc
+
+# --- DISTRIBUTION - setup-tools
+
+dist/
+*.egg-info
+
+# --- KEYWORDS - data you don't want to commit
+
+*private*
+priv_*
+
+*temporary*
+temp_*
+
+*secret*
+*.key
+
+*proprietary*
+prop_*
