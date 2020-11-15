@@ -6,6 +6,11 @@
 
 The JSON Class Database.
 
+<a id="concept"></a>
+## Concept
+
+Store data using a json format, make it avaliable from everywhere within the system and make it serializable (and deserializable) from there.
+
 <a id="installation"></a>
 ## Installation
 
