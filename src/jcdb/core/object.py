@@ -1,6 +1,6 @@
 import json
 
-DEFAULT_OBJECT_STORAGE = "/var/lib/jcdb"
+DEFAULT_OBJECT_STORAGE = "/var/lib/jcdb/"
 
 
 class Object:

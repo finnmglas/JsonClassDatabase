@@ -4,6 +4,8 @@ import argparse, sys
 
 from ..core.object import *
 
+from .tool_path import JCDBPath
+
 
 class JCDB:
 
@@ -12,7 +14,9 @@ class JCDB:
     It allows you to store data in the JSON Class Database.
     """
 
-    tools = {}
+    tools = {
+        "path": JCDBPath,
+    }
 
     @staticmethod
     def error(e):
