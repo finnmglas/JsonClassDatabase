@@ -41,7 +41,9 @@ setuptools.setup(
     license="MIT",
     packages=setuptools.find_packages(),
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "jcdb=jcdb.tools:JCDB.main",
+        ],
     },
     install_requires=[
         "argparse",
