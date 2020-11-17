@@ -2,14 +2,14 @@
 
 import argparse, sys
 
-from ..core.object import *
+from ..core import *
 
 from .tool_path import JCDBPath
 from .tool_exists import JCDBExists
 from .tool_list import JCDBList
 
 
-class JCDB:
+class JCDBCLI:
 
     """
     The 'jcdb' commandline tool based on the JCDB python module.
@@ -24,7 +24,7 @@ class JCDB:
 
     @staticmethod
     def error(e):
-        JCDB.parser.error(e)
+        JCDBCLI.parser.error(e)
 
     @staticmethod
     def generateParser():
@@ -33,11 +33,11 @@ class JCDB:
         Generate the ArgumentParser for 'jcdb'.
         """
 
-        JCDB.parser = argparse.ArgumentParser(
+        JCDBCLI.parser = argparse.ArgumentParser(
             description="Interact with the JSON Class Database.",
             epilog="More details at https://github.com/finnmglas/jcdb.",
         )
-        JCDB.parser.add_argument(
+        JCDBCLI.parser.add_argument(
             "-v",
             "--version",
             dest="show_version",
@@ -45,23 +45,23 @@ class JCDB:
             help="show the current version and exit",
         )
 
-        subparsers = JCDB.parser.add_subparsers(dest="tool", help="JCDB tools")
+        subparsers = JCDBCLI.parser.add_subparsers(dest="tool", help="JCDB tools")
 
-        for name in JCDB.tools:
-            tool = JCDB.tools[name]
+        for name in JCDBCLI.tools:
+            tool = JCDBCLI.tools[name]
             # Import Parser --- jcdb [name]
             toolParser = subparsers.add_parser(name)
             toolParser.__dict__ = tool.generateParser().__dict__
 
-        return JCDB.parser
+        return JCDBCLI.parser
 
     @staticmethod
     def main():
 
         # generate parser
-        JCDB.generateParser()
+        JCDBCLI.generateParser()
         # parse args
-        args = JCDB.parser.parse_args(sys.argv[1:])
+        args = JCDBCLI.parser.parse_args(sys.argv[1:])
 
         # show version
         if args.show_version:
@@ -75,8 +75,8 @@ class JCDB:
             exit()
 
         # forward args to a tool
-        JCDB.tools[args.tool].main(args)
+        JCDBCLI.tools[args.tool].main(args)
 
 
 if __name__ == "__main__":
-    JCDB.main()
+    JCDBCLI.main()

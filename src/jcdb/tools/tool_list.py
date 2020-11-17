@@ -4,8 +4,7 @@ import argparse, sys
 
 from cliprint import print_table, color
 
-from ..core.object import *
-from .tool_path import *
+from ..core import *
 
 
 class JCDBList:
@@ -43,14 +42,6 @@ class JCDBList:
         return JCDBList.parser
 
     @staticmethod
-    def list(db=None, cls=None):  # returns tuples (name, isfile)
-        dir = JCDBPath.makePath(db, cls)
-        return [
-            (d.replace(".json", ""), os.path.isfile(os.path.join(dir, d)))
-            for d in os.listdir(dir)
-        ]
-
-    @staticmethod
     def main(args=None):
 
         """
@@ -70,7 +61,7 @@ class JCDBList:
                         "DB",
                         e[0],
                     ]
-                    for e in JCDBList.list(args.db, args.cls)
+                    for e in JCDB.list(args.db, args.cls)
                 ],
             )
         else:
@@ -82,10 +73,10 @@ class JCDBList:
                         {True: "OBJECT", False: "CLASS"}[e[1]],
                         e[0],
                     ]
-                    for e in JCDBList.list(args.db, args.cls)
+                    for e in JCDB.list(args.db, args.cls)
                 ],
             )
 
 
 if __name__ == "__main__":
-    LedgerMan.main()
+    JCDBList.main()

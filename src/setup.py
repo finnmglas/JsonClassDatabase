@@ -42,7 +42,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         "console_scripts": [
-            "jcdb=jcdb.tools:JCDB.main",
+            "jcdb=jcdb.tools:JCDBCLI.main",
         ],
     },
     install_requires=[

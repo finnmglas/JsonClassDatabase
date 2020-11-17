@@ -2,7 +2,7 @@
 
 import argparse, sys, os
 
-from ..core.object import *
+from ..core import *
 
 
 class JCDBPath:
@@ -45,21 +45,6 @@ class JCDBPath:
         return JCDBPath.parser
 
     @staticmethod
-    def makePath(db=None, cls=None, inst=None):
-        path = DEFAULT_OBJECT_STORAGE
-
-        if db:
-            path = os.path.join(path, db)
-
-        if cls:
-            path = os.path.join(path, *cls.split("."))
-
-        if inst:
-            path = os.path.join(path, inst + ".json")
-
-        return path
-
-    @staticmethod
     def main(args=None):
 
         """
@@ -70,8 +55,8 @@ class JCDBPath:
             JCDBPath.generateParser()
             args = JCDBPath.parser.parse_args(sys.argv[1:])
 
-        print(JCDBPath.makePath(args.db, args.cls, args.inst))
+        print(JCDB.makePath(args.db, args.cls, args.inst), "\n")
 
 
 if __name__ == "__main__":
-    LedgerMan.main()
+    JCDBPath.main()

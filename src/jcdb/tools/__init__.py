@@ -1,1 +1,1 @@
-from .jcdb import JCDB
+from .jcdb import JCDBCLI
