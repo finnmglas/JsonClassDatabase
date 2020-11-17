@@ -28,6 +28,24 @@ class JCDB:
         return path
 
     @staticmethod
+    def create(db, cls=None, inst=None):
+        if not JCDB.exists(db, cls):
+            os.makedirs(JCDB.makePath(db, cls))
+            if not inst and not cls:
+                return 0
+            elif not inst:
+                return 1
+        elif not inst:
+            return 3
+
+        if inst and not JCDB.exists(db, cls, inst):
+            with open(JCDB.makePath(db, cls, inst), "w") as f:
+                f.write("{}")
+        else:
+            return 3
+        return 2
+
+    @staticmethod
     def innerInstPathToDir(inst):  # return tuple (filename, attr)
         sp = inst.split(".")
         return (sp[0] + ".json", ".".join(sp[1:]))
@@ -39,6 +57,8 @@ class JCDB:
     @staticmethod
     def list(db=None, cls=None):  # returns tuples (name, isfile)
         dir = JCDB.makePath(db, cls)
+        if not JCDB.exists(db, cls):
+            return None
         return [
             (d.replace(".json", ""), os.path.isfile(os.path.join(dir, d)))
             for d in os.listdir(dir)

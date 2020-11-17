@@ -52,6 +52,15 @@ class JCDBList:
             JCDBList.generateParser()
             args = JCDBList.parser.parse_args(sys.argv[1:])
 
+        lst = JCDB.list(args.db, args.cls)
+
+        if lst == None:
+            print("Path does not exist.\n")
+            exit()
+        elif len(lst) == 0:
+            print("Nothing found.\n")
+            exit()
+
         if args.db == None:
             print(
                 color.f.bold + "The following databases were was found:\n" + color.end
@@ -63,7 +72,7 @@ class JCDBList:
                         "DB",
                         e[0],
                     ]
-                    for e in JCDB.list(args.db, args.cls)
+                    for e in lst
                 ],
             )
         else:
@@ -75,7 +84,7 @@ class JCDBList:
                         {True: "OBJECT", False: "CLASS"}[e[1]],
                         e[0],
                     ]
-                    for e in JCDB.list(args.db, args.cls)
+                    for e in lst
                 ],
             )
 
