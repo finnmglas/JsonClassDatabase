@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-import argparse, sys
+import argparse, sys, os
 
 from ..core.object import *
 
@@ -49,13 +49,13 @@ class JCDBPath:
         path = DEFAULT_OBJECT_STORAGE
 
         if db:
-            path += db + "/"
+            path = os.path.join(path, db)
 
         if cls:
-            path += cls.replace(".", "/") + "/"
+            path = os.path.join(path, *cls.split("."))
 
         if inst:
-            path += inst + ".json"
+            path = os.path.join(path, inst + ".json")
 
         return path
 

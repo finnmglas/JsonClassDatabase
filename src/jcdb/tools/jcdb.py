@@ -5,6 +5,7 @@ import argparse, sys
 from ..core.object import *
 
 from .tool_path import JCDBPath
+from .tool_exists import JCDBExists
 
 
 class JCDB:
@@ -16,6 +17,7 @@ class JCDB:
 
     tools = {
         "path": JCDBPath,
+        "exists": JCDBExists,
     }
 
     @staticmethod

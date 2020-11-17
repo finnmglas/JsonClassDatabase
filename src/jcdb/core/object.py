@@ -1,6 +1,6 @@
-import json
+import json, os
 
-DEFAULT_OBJECT_STORAGE = "/var/lib/jcdb/"
+DEFAULT_OBJECT_STORAGE = os.path.join(os.path.expanduser("~"), ".jcdb")
 
 
 class Object:
