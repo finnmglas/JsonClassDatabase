@@ -10,7 +10,7 @@ from ..core import *
 class JCDBList:
 
     """
-    'jcdb list' returns the location of a JCDB object.
+    'jcdb list' lists JCDB objects.
     """
 
     @staticmethod
@@ -26,7 +26,7 @@ class JCDBList:
 
         JCDBList.parser = argparse.ArgumentParser(
             prog="jcdb list",
-            description="Calculate the location of a JCDB object.",
+            description="List JCDB objects, dbs and classes.",
         )
         JCDBList.parser.add_argument(
             "db",
@@ -53,7 +53,9 @@ class JCDBList:
             args = JCDBList.parser.parse_args(sys.argv[1:])
 
         if args.db == None:
-            print("The following databases were was found:\n")
+            print(
+                color.f.bold + "The following databases were was found:\n" + color.end
+            )
             print_table(
                 [8, 32],
                 [
@@ -65,7 +67,7 @@ class JCDBList:
                 ],
             )
         else:
-            print("The following elements were found:\n")
+            print(color.f.bold + "The following elements were found:\n" + color.end)
             print_table(
                 [8, 32],
                 [

@@ -63,6 +63,12 @@ class Object:
 
         Object.types[t.__name__] = t
 
+    @staticmethod
+    def getRegistred(name):
+        if name in Object.types:
+            return Object.types[name]
+        return Object
+
     ## --- Serialization --- ##
 
     def encode(self, indent=None):
@@ -89,7 +95,7 @@ class Object:
 
         o = j
         if isinstance(j, dict):
-            o = Object.types[j.pop("_type", None)]()
+            o = Object.getRegistred(j.pop("_type", None))()
 
             for k in j:
                 setattr(o, k, j[k])

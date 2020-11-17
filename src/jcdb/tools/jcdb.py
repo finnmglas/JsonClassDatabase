@@ -7,6 +7,7 @@ from ..core import *
 from .tool_path import JCDBPath
 from .tool_exists import JCDBExists
 from .tool_list import JCDBList
+from .tool_get import JCDBGet
 
 
 class JCDBCLI:
@@ -20,6 +21,7 @@ class JCDBCLI:
         "path": JCDBPath,
         "exists": JCDBExists,
         "list": JCDBList,
+        "get": JCDBGet,
     }
 
     @staticmethod
