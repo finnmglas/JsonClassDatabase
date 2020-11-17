@@ -47,6 +47,7 @@ setuptools.setup(
     },
     install_requires=[
         "argparse",
+        "cliprint",
     ],
     test_suite="nose.collector",
     tests_require=["nose"],

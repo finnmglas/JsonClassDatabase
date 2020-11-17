@@ -6,6 +6,7 @@ from ..core.object import *
 
 from .tool_path import JCDBPath
 from .tool_exists import JCDBExists
+from .tool_list import JCDBList
 
 
 class JCDB:
@@ -18,6 +19,7 @@ class JCDB:
     tools = {
         "path": JCDBPath,
         "exists": JCDBExists,
+        "list": JCDBList,
     }
 
     @staticmethod
@@ -69,7 +71,7 @@ class JCDB:
             return
 
         if args.tool == None:
-            print("No arguments supplied.")
+            print("No tool supplied. Run 'jcdb -h' for a list of tools.\n")
             exit()
 
         # forward args to a tool

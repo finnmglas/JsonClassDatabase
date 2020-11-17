@@ -46,7 +46,7 @@ class JCDBExists:
         return JCDBExists.parser
 
     @staticmethod
-    def exists(db, cls, inst):
+    def exists(db, cls=None, inst=None):
         return os.path.exists(JCDBPath.makePath(db, cls, inst))
 
     @staticmethod
@@ -60,7 +60,7 @@ class JCDBExists:
             JCDBExists.generateParser()
             args = JCDBExists.parser.parse_args(sys.argv[1:])
 
-        print(JCDBExists.exists(args.db, args.cls, args.inst))
+        print(JCDBExists.exists(args.db, args.cls, args.inst), "\n")
 
 
 if __name__ == "__main__":

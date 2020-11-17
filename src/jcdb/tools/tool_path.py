@@ -45,7 +45,7 @@ class JCDBPath:
         return JCDBPath.parser
 
     @staticmethod
-    def makePath(db, cls, inst):
+    def makePath(db=None, cls=None, inst=None):
         path = DEFAULT_OBJECT_STORAGE
 
         if db:
